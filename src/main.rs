@@ -24,8 +24,18 @@ struct Imp {
 
 #[derive(Debug, Deserialize)]
 struct Banner {
+    format: Option<Vec<Format>>,
     w: Option<i32>,
     h: Option<i32>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Format {
+    w: Option<i32>,
+    h: Option<i32>,
+    wratio: Option<i32>,
+    hratio: Option<i32>,
+    wmin: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -113,5 +123,18 @@ mod tests {
         let br: BidRequest = serde_json::from_str(json)
             .expect("at is optional in OpenRTB 2.x");
         assert_eq!(br.at, None);
+    }
+
+    #[test]
+    fn deserializes_banner_with_format_array() {
+        let json = r#"{
+            "id":"req-3",
+            "imp":[{"id":"imp-1","banner":{"format":[{"w":300,"h":250},{"w":300,"h":600}]}}]
+        }"#;
+        let br: BidRequest = serde_json::from_str(json).unwrap();
+        let fmts = br.imp[0].banner.as_ref().unwrap().format.as_ref().unwrap();
+        assert_eq!(fmts.len(), 2);
+        assert_eq!(fmts[0].w, Some(300));
+        assert_eq!(fmts[1].h, Some(600));
     }
 }
