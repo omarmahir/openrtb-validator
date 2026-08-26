@@ -1,4 +1,4 @@
-use openrtb_validator::{validate, ErrorCode, Severity};
+use openrtb_validator::{ErrorCode, Severity, validate};
 
 #[test]
 fn valid_request_from_outside_the_crate() {
@@ -10,12 +10,15 @@ fn valid_request_from_outside_the_crate() {
 fn eur_floor_without_cur_warns_against_implied_usd() {
     let json = r#"{"id":"a","imp":[{"id":"1","banner":{},"bidfloorcur":"EUR"}],"site":{}}"#;
     let out = validate(json);
-    assert!(out.iter().any(|e| e.code == ErrorCode::CurMismatch
-        && e.severity == Severity::Warning));
+    assert!(
+        out.iter()
+            .any(|e| e.code == ErrorCode::CurMismatch && e.severity == Severity::Warning)
+    );
 }
 
 #[test]
 fn native_only_imp_is_valid() {
-    let json = r#"{"id":"a","imp":[{"id":"1","native":{"request":"{}"}}],"app":{"bundle":"com.x"}}"#;
+    let json =
+        r#"{"id":"a","imp":[{"id":"1","native":{"request":"{}"}}],"app":{"bundle":"com.x"}}"#;
     assert!(validate(json).is_empty());
 }

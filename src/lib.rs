@@ -583,6 +583,57 @@ mod tests {
     }
 
     #[test]
+    fn absent_imp_field_is_parse_error() {
+        let json = r#"{"id":"req-1","site":{"page":"https://example.com"}}"#;
+        let errors = validate(json);
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].code, ErrorCode::ParseError);
+    }
+
+    #[test]
+    fn realistic_web_display_request_is_valid() {
+        let json = r#"{
+        "id": "80ce30c53c16e6ede735f123ef6e32361bfc7b22",
+        "at": 1,
+        "tmax": 120,
+        "cur": ["USD"],
+        "imp": [{
+            "id": "1",
+            "tagid": "/1234/sports/leaderboard",
+            "bidfloor": 1.75,
+            "bidfloorcur": "USD",
+            "secure": 1,
+            "banner": {
+                "format": [{"w": 728, "h": 90}, {"w": 970, "h": 250}],
+                "pos": 1,
+                "battr": [13],
+                "api": [7]
+            }
+        }],
+        "site": {
+            "id": "102855",
+            "domain": "example.com",
+            "page": "https://example.com/sports/article-123",
+            "cat": ["IAB17"],
+            "publisher": {"id": "8953", "name": "Example Media"}
+        },
+        "device": {
+            "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+            "ip": "203.0.113.1",
+            "devicetype": 2,
+            "os": "OS X",
+            "language": "en",
+            "geo": {"country": "USA", "region": "CA", "type": 2}
+        },
+        "user": {"id": "55816b39711f9b5acf3b90e313ed29e51665623f"},
+        "regs": {"gdpr": 0},
+        "bcat": ["IAB25", "IAB26"],
+        "badv": ["competitor.com"]
+    }"#;
+        assert!(validate(json).is_empty());
+    }
+
+    #[test]
     fn errors_are_returned_in_document_order() {
         let json = r#"{
             "id": "",
