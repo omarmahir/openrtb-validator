@@ -40,8 +40,14 @@ struct Format {
 
 #[derive(Debug, Deserialize)]
 struct Video {
+    mimes: Option<Vec<String>>,
+    minduration: Option<i32>,
+    maxduration: Option<i32>,
+    protocols: Option<Vec<i32>>,
     w: Option<i32>,
     h: Option<i32>,
+    startdelay: Option<i32>,
+    linearity: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -136,5 +142,18 @@ mod tests {
         assert_eq!(fmts.len(), 2);
         assert_eq!(fmts[0].w, Some(300));
         assert_eq!(fmts[1].h, Some(600));
+    }
+
+    #[test]
+    fn deserializes_video_imp() {
+        let json = r#"{
+            "id":"req-4",
+            "imp":[{"id":"imp-1","video":{"mimes":["video/mp4"],"minduration":5,"maxduration":30,"protocols":[2,3,5,6]}}]
+        }"#;
+        let br: BidRequest = serde_json::from_str(json).unwrap();
+        let v = br.imp[0].video.as_ref().unwrap();
+        assert_eq!(v.mimes.as_ref().unwrap()[0], "video/mp4");
+        assert_eq!(v.protocols.as_ref().unwrap().len(), 4);
+        assert_eq!(v.maxduration, Some(30));
     }
 }
