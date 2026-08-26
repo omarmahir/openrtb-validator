@@ -18,7 +18,7 @@ struct Imp {
     banner: Option<Banner>,
     video: Option<Video>,
     #[serde(default)]
-    bidfloor: f64,
+    bidfloor: Option<f64>,
     bidfloorcur: Option<String>,
 }
 
@@ -53,7 +53,12 @@ struct Video {
 #[derive(Debug, Deserialize)]
 struct Site {
     id: Option<String>,
+    page: Option<String>,
     domain: Option<String>,
+    name: Option<String>,
+    cat: Option<Vec<String>>,
+    /// `ref` is a Rust keyword; r# maps to the JSON key "ref".
+    r#ref: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -96,7 +101,7 @@ mod tests {
             ],
             "at": 2,
             "tmax": 120,
-            "site": { "id": "site-1", "domain": "example.com" },
+            "site": { "id": "site-1", "domain": "example.com" , "page":"https://example.com/article"},
             "device": { "ua": "Mozilla/5.0", "ip": "203.0.113.1" },
             "user": { "id": "user-1" }
         }
@@ -112,7 +117,7 @@ mod tests {
 
         let imp = &bid_request.imp[0];
         assert_eq!(imp.id, "imp-1");
-        assert_eq!(imp.bidfloor, 0.5);
+        assert_eq!(imp.bidfloor, Some(0.5));
         assert_eq!(imp.bidfloorcur.as_deref(), Some("USD"));
         assert!(imp.banner.is_some());
         assert!(imp.video.is_none());
@@ -121,6 +126,9 @@ mod tests {
         assert!(bid_request.app.is_none());
         assert!(bid_request.device.is_some());
         assert!(bid_request.user.is_some());
+
+        let site = bid_request.site.as_ref().unwrap();
+        assert_eq!(site.page.as_deref(), Some("https://example.com/article"));
     }
 
     #[test]
@@ -155,5 +163,15 @@ mod tests {
         assert_eq!(v.mimes.as_ref().unwrap()[0], "video/mp4");
         assert_eq!(v.protocols.as_ref().unwrap().len(), 4);
         assert_eq!(v.maxduration, Some(30));
+    }
+
+    #[test]
+    fn omitted_bidfloor_is_distinguishable_from_zero() {
+        let omitted: BidRequest =
+            serde_json::from_str(r#"{"id":"a","imp":[{"id":"i"}]}"#).unwrap();
+        let explicit: BidRequest =
+            serde_json::from_str(r#"{"id":"a","imp":[{"id":"i","bidfloor":0.0}]}"#).unwrap();
+        assert_eq!(omitted.imp[0].bidfloor, None);
+        assert_eq!(explicit.imp[0].bidfloor, Some(0.0));
     }
 }
