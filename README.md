@@ -172,4 +172,10 @@ Architecture decisions and their rationale are recorded in `docs/adr`.
 
 ## Live deployment
 
-Deployed at: _TBD (Cloud Run URL)_
+https://openrtb-validator-450864391494.europe-west1.run.app
+
+    curl https://openrtb-validator-450864391494.europe-west1.run.app/health
+
+    curl -X POST https://openrtb-validator-450864391494.europe-west1.run.app/validate \
+      -H "Content-Type: application/json" \
+      -d '{"id":"","imp":[]}'
