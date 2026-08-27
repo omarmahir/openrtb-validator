@@ -1,5 +1,8 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+
+mod http;
+pub use http::app;
 
 #[derive(Debug, Deserialize)]
 pub struct BidRequest {
@@ -82,13 +85,14 @@ pub struct User {
     pub id: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Severity {
     Error,
     Warning,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ErrorCode {
     ParseError,
     EmptyId,
@@ -104,7 +108,7 @@ pub enum ErrorCode {
     CurMismatch,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ValidationError {
     pub code: ErrorCode,
     pub severity: Severity,
