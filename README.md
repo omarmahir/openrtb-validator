@@ -1,5 +1,7 @@
 # openrtb-validator
 
+[![CI](https://github.com/omarmahir/openrtb-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/omarmahir/openrtb-validator/actions/workflows/ci.yml)
+
 An OpenRTB 2.x bid-request validation service in Rust.
 
 ## Why I built this
